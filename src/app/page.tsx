@@ -15,23 +15,27 @@ import { v4 as uuidv4 } from "uuid";
 const initialDiagrams: Diagram[] = [
   {
     id: "1",
-    name: "Example: SPI",
-    content: `SCK: p.n.p.n.p.n.p.n.p.n.p.n.p.n.p.n.
-CS:  l.....h........................
-MOSI: x.D7.D6.D5.D4.D3.D2.D1.D0.x........
-MISO: x..z.....z..z..z..z..z..z..z.x...`,
+    name: "Example: t1, t2, t3",
+    content: `// Markers can be placed on the first line
+Marker= |a  b     |c
+t1:     _~~__~~__//_~~_
+t2:     x*0*1*..2..*3*x
+t3:     x[0][1]..[2].[3]x`,
     isSaved: true,
   },
   {
     id: "2",
     name: "Example: I2C",
-    content: `SCL: h.p.n.p.n.p.n.p.n.p.n.p.n.p.n.p.n.h
-SDA: h.SA6.SA5.SA4.SA3.SA2.SA1.SA0.A.D7.D6.h`,
+    content: `Marker= |START |A6    |A5    |A4    |A3    |A2    |A1    |A0    |ACK   |D7    |D6    |STOP
+SCL:    ~____/~~____/~~____/~~____/~~____/~~____/~~____/~~____/~~____/~~____/~~____/~~__
+SDA:    ~~___/SADR6/SADR5/SADR4/SADR3/SADR2/SADR1/SADR0/ACK__/DATA7/DATA6/____~~`,
     isSaved: true,
   },
 ];
 
 const defaultDiagramContent = `// Welcome to WebJackTimer!
+// Markers go on the first line: Marker= |a |b
+// Then add your signals line-by-line.
 // Use the symbol reference in the sidebar.
 `;
 
@@ -59,7 +63,7 @@ export default function Home() {
     setActiveDiagram({
       id: uuidv4(),
       name: "Untitled Diagram",
-      content: ``,
+      content: defaultDiagramContent,
       isSaved: false,
     });
   };

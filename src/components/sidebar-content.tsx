@@ -28,20 +28,20 @@ interface SidebarContentProps {
 }
 
 const symbolReference = [
-    { symbol: '~', description: 'Hi-Z to High' },
-    { symbol: '_', description: 'Hi-Z to Low' },
-    { symbol: '/', description: 'Low to High' },
-    { symbol: '\\', description: 'High to Low' },
-    { symbol: '=', description: 'Bus separator' },
-    { symbol: 'h', description: 'High' },
-    { symbol: 'l', description: 'Low' },
-    { symbol: 'z', description: 'Hi-Z' },
-    { symbol: 'x', description: 'Undefined' },
-    { symbol: '.', description: 'Keep previous' },
-    { symbol: '*', description: 'Data transition' },
+    { symbol: '-', description: 'Tristate' },
+    { symbol: '~', description: 'Hi edge' },
+    { symbol: '_', description: 'Lo edge' },
+    { symbol: '/', description: 'Hi edge slow' },
+    { symbol: '\\', description: 'Lo edge slow' },
+    { symbol: '[', description: 'Data begin' },
+    { symbol: ']', description: 'Data end' },
+    { symbol: '*', description: 'Data cross over' },
+    { symbol: '<', description: 'Data begin slow' },
+    { symbol: '>', description: 'Data end slow' },
+    { symbol: ':', description: 'Break' },
     { symbol: '|', description: 'Marker' },
-    { symbol: '|a', description: 'Named marker' },
-]
+    { symbol: ' ', description: 'Grid unit' },
+];
 
 export default function SidebarContent({
   diagrams,
@@ -86,14 +86,14 @@ export default function SidebarContent({
       </SidebarContentArea>
 
       <SidebarFooter className="p-0 border-t">
-        <Accordion type="multiple" className="w-full px-2" defaultValue={['symbols']}>
+        <Accordion type="single" collapsible className="w-full px-2" defaultValue="symbols">
             <AccordionItem value="symbols">
                 <AccordionTrigger>Symbol Reference</AccordionTrigger>
                 <AccordionContent>
                     <ul className="space-y-2 text-sm text-muted-foreground px-2">
                         {symbolReference.map(item => (
                             <li key={item.symbol} className="flex justify-between">
-                                <code className="font-code bg-muted px-1 rounded-sm">{item.symbol}</code>
+                                <code className="font-code bg-muted px-1 rounded-sm">{item.symbol === ' ' ? '  (space)' : item.symbol}</code>
                                 <span>{item.description}</span>
                             </li>
                         ))}
