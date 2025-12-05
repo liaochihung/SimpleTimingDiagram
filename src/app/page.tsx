@@ -32,17 +32,7 @@ SDA: h.SA6.SA5.SA4.SA3.SA2.SA1.SA0.A.D7.D6.h`,
 ];
 
 const defaultDiagramContent = `// Welcome to WebJackTimer!
-// Use the symbols below to create your timing diagram.
-//
-// p - Positive edge clock
-// n - Negative edge clock
-// h - High signal
-// l - Low signal
-// . - Continue previous state
-// x - Unknown state
-// D - Data block
-// z - High impedance
-// | - Spacer
+// See the symbol reference in the sidebar.
 //
 // Example:
 SIGNAL_NAME: p.n.h.l.x|D|z`;
