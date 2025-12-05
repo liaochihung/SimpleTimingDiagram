@@ -4,6 +4,7 @@ import { DiagramConfig, Signal } from "@/lib/types";
 import { useMemo } from "react";
 
 interface DiagramRendererProps {
+  id?: string;
   content: string;
   config: DiagramConfig;
 }
@@ -22,7 +23,7 @@ interface Marker {
 const parseContent = (content: string): { signals: Signal[], markers: Marker[] } => {
   const lines = content
     .split("\n")
-    .map((line) => line.trim())
+    .map((line) => line.trimEnd()) // Keep leading spaces for marker alignment
     .filter((line) => line && !line.startsWith("//"));
   
   const signals: Signal[] = [];
@@ -31,7 +32,7 @@ const parseContent = (content: string): { signals: Signal[], markers: Marker[] }
   const markerLine = lines.find(l => l.toUpperCase().startsWith("MARKER="));
   if (markerLine) {
     const markerContent = markerLine.substring(7);
-    let nameRegex = /\|(\w+)/g;
+    let nameRegex = /\|(\w*)/g;
     let match;
     while ((match = nameRegex.exec(markerContent)) !== null) {
         markers.push({ position: match.index, name: match[1] });
@@ -43,14 +44,14 @@ const parseContent = (content: string): { signals: Signal[], markers: Marker[] }
   for (const line of signalLines) {
     const parts = line.split(":");
     const name = parts[0]?.trim() || "untitled";
-    let wave = parts[1]?.trim() || "";
+    let wave = parts[1] || ""; // Don't trim start, it matters
 
     signals.push({ name, wave });
   }
   return { signals, markers };
 };
 
-export default function DiagramRenderer({ content, config }: DiagramRendererProps) {
+export default function DiagramRenderer({ id, content, config }: DiagramRendererProps) {
   const { signals, markers } = useMemo(() => parseContent(content), [content]);
   
   if (signals.length === 0) {
@@ -186,7 +187,9 @@ export default function DiagramRenderer({ content, config }: DiagramRendererProp
   };
 
   return (
-    <svg width={totalWidth} height={totalHeight} className="font-sans" aria-label="Timing Diagram">
+    <svg id={id} width={totalWidth} height={totalHeight} className="font-sans" aria-label="Timing Diagram"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <rect width="100%" height="100%" fill="hsl(var(--background))" />
       
       {/* Markers */}

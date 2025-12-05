@@ -6,7 +6,13 @@ import { Diagram } from "@/lib/types";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { SidebarTrigger } from "./ui/sidebar";
-import { Save, FileWarning } from "lucide-react";
+import { Save, FileWarning, Download } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -22,9 +28,14 @@ import { Label } from "./ui/label";
 interface AppHeaderProps {
   activeDiagram: Diagram;
   onSave: (name: string) => void;
+  onExport: (format: "svg" | "png") => void;
 }
 
-export default function AppHeader({ activeDiagram, onSave }: AppHeaderProps) {
+export default function AppHeader({
+  activeDiagram,
+  onSave,
+  onExport,
+}: AppHeaderProps) {
   const [diagramName, setDiagramName] = useState(activeDiagram.name);
   const [open, setOpen] = useState(false);
 
@@ -32,7 +43,7 @@ export default function AppHeader({ activeDiagram, onSave }: AppHeaderProps) {
     onSave(diagramName);
     setOpen(false);
   };
-  
+
   React.useEffect(() => {
     setDiagramName(activeDiagram.name);
   }, [activeDiagram.name]);
@@ -51,6 +62,22 @@ export default function AppHeader({ activeDiagram, onSave }: AppHeaderProps) {
           </div>
         )}
       </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline">
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={() => onExport("svg")}>
+            Export as SVG
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onExport("png")}>
+            Export as PNG
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button>
@@ -62,7 +89,8 @@ export default function AppHeader({ activeDiagram, onSave }: AppHeaderProps) {
           <DialogHeader>
             <DialogTitle>Save Diagram</DialogTitle>
             <DialogDescription>
-              Give your diagram a name. You can access it later from the projects list.
+              Give your diagram a name. You can access it later from the
+              projects list.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -84,7 +112,9 @@ export default function AppHeader({ activeDiagram, onSave }: AppHeaderProps) {
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit" onClick={handleSave}>Save</Button>
+            <Button type="submit" onClick={handleSave}>
+              Save
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

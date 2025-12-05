@@ -11,16 +11,17 @@ import SidebarContent from "@/components/sidebar-content";
 import AppHeader from "@/components/header";
 import DiagramEditor from "@/components/diagram-editor";
 import { v4 as uuidv4 } from "uuid";
+import { useToast } from "@/hooks/use-toast";
 
 const initialDiagrams: Diagram[] = [
   {
     id: "1",
-    name: "Example: t1, t2, t3",
+    name: "Example: SPI",
     content: `// Markers can be placed on the first line
-Marker= |a  b     |c
-t1:     _~~__~~__//_~~_
-t2:     x*0*1*..2..*3*x
-t3:     x[0][1]..[2].[3]x`,
+Marker=|a     |b     |c
+SCK:   ~_~_~_~_~_~_~_
+MOSI:  x[10110101]x
+MISO:  x[01101010]x`,
     isSaved: true,
   },
   {
@@ -36,10 +37,10 @@ SDA:    ~~___/SADR6/SADR5/SADR4/SADR3/SADR2/SADR1/SADR0/ACK__/DATA7/DATA6/____~~
 const defaultDiagramContent = `// Welcome to WebJackTimer!
 // Markers go on the first line: Marker= |a |b
 // Then add your signals line-by-line.
-// Use the symbol reference in the sidebar.
 `;
 
 export default function Home() {
+  const { toast } = useToast();
   const [diagrams, setDiagrams] = React.useState<Diagram[]>(initialDiagrams);
   const [activeDiagram, setActiveDiagram] = React.useState<Diagram>({
     id: uuidv4(),
@@ -80,11 +81,59 @@ export default function Home() {
       setDiagrams([...diagrams, newDiagram]);
     }
     setActiveDiagram(newDiagram);
+    toast({ title: "Diagram Saved", description: `"${name}" has been saved.` });
   };
-  
+
   const handleContentChange = (content: string) => {
-    setActiveDiagram(prev => ({ ...prev, content, isSaved: false }));
-  }
+    setActiveDiagram((prev) => ({ ...prev, content, isSaved: false }));
+  };
+
+  const handleExport = (format: "svg" | "png") => {
+    const svgElement = document.getElementById("diagram-to-export");
+    if (!svgElement) {
+      toast({
+        variant: "destructive",
+        title: "Export Failed",
+        description: "Could not find the diagram to export.",
+      });
+      return;
+    }
+
+    const svgString = new XMLSerializer().serializeToString(svgElement);
+    const blob = new Blob([svgString], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+
+    const downloadLink = document.createElement("a");
+    downloadLink.href = url;
+
+    if (format === "svg") {
+      downloadLink.download = `${activeDiagram.name}.svg`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(url);
+      toast({ title: "SVG Exported" });
+    } else {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx?.drawImage(img, 0, 0);
+        const pngUrl = canvas.toDataURL("image/png");
+        downloadLink.href = pngUrl;
+        downloadLink.download = `${activeDiagram.name}.png`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(pngUrl);
+        toast({ title: "PNG Exported" });
+      };
+      img.src = url;
+    }
+  };
 
   return (
     <SidebarProvider>
@@ -102,6 +151,7 @@ export default function Home() {
         <AppHeader
           activeDiagram={activeDiagram}
           onSave={handleSaveDiagram}
+          onExport={handleExport}
         />
         <main className="flex-1 flex flex-col overflow-hidden">
           <DiagramEditor

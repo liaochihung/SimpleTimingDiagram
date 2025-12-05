@@ -6,8 +6,7 @@ import DiagramRenderer from "./diagram-renderer";
 import { Textarea } from "./ui/textarea";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
-import { Bot, Loader2, Sparkles } from "lucide-react";
-import { getSymbolSuggestions, getTimingErrors } from "@/lib/actions";
+import { Copy, ClipboardPaste } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "./ui/scroll-area";
 
@@ -17,82 +16,38 @@ interface DiagramEditorProps {
   config: DiagramConfig;
 }
 
-export default function DiagramEditor({ diagram, onContentChange, config }: DiagramEditorProps) {
+export default function DiagramEditor({
+  diagram,
+  onContentChange,
+  config,
+}: DiagramEditorProps) {
   const { toast } = useToast();
-  const [suggestions, setSuggestions] = React.useState<string[]>([]);
-  const [isSuggesting, setIsSuggesting] = React.useState(false);
-  const [isCheckingErrors, setIsCheckingErrors] = React.useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
-  React.useEffect(() => {
-    const handler = setTimeout(() => {
-      if (diagram.content) {
-        handleSuggestSymbols();
-      }
-    }, 1000); // 1-second debounce
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [diagram.content]);
-  
-  const handleSuggestSymbols = async () => {
-    setIsSuggesting(true);
+  const handleCopy = async () => {
     try {
-      const result = await getSymbolSuggestions({
-        currentDiagramContext: diagram.content,
-        userInput: diagram.content.slice(-10),
-      });
-      setSuggestions(result.suggestedSymbols || []);
-    } catch (error) {
-      console.error("Error fetching symbol suggestions:", error);
-      setSuggestions([]);
-    } finally {
-      setIsSuggesting(false);
-    }
-  };
-
-  const handleCheckErrors = async () => {
-    setIsCheckingErrors(true);
-    try {
-      const result = await getTimingErrors({ diagramDescription: diagram.content });
-      if (result.isConsistent) {
-        toast({
-          title: "Analysis Complete",
-          description: "No timing errors found.",
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Potential Errors Found",
-          description: (
-            <ul className="list-disc pl-5">
-              {result.errors.map((error, i) => <li key={i}>{error}</li>)}
-            </ul>
-          ),
-        });
-      }
-    } catch (error) {
-      console.error("Error checking for timing errors:", error);
+      await navigator.clipboard.writeText(diagram.content);
+      toast({ title: "Copied to clipboard" });
+    } catch (err) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Could not analyze the diagram.",
+        title: "Failed to copy",
+        description: "Could not copy content to clipboard.",
       });
-    } finally {
-      setIsCheckingErrors(false);
     }
   };
-  
-  const handleSuggestionClick = (symbol: string) => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      const { selectionStart, selectionEnd } = textarea;
-      const newContent = 
-        diagram.content.substring(0, selectionStart) +
-        symbol +
-        diagram.content.substring(selectionEnd);
-      onContentChange(newContent);
+
+  const handlePaste = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      onContentChange(text);
+      toast({ title: "Pasted from clipboard" });
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "Failed to paste",
+        description: "Could not read content from clipboard.",
+      });
     }
   };
 
@@ -101,7 +56,19 @@ export default function DiagramEditor({ diagram, onContentChange, config }: Diag
       <div className="lg:col-span-1 flex flex-col gap-4">
         <Card className="flex-1 flex flex-col">
           <CardContent className="p-4 flex-1 flex flex-col">
-            <h3 className="text-lg font-semibold mb-2">Editor</h3>
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="text-lg font-semibold">Editor</h3>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="icon" onClick={handleCopy}>
+                  <Copy className="h-4 w-4" />
+                  <span className="sr-only">Copy</span>
+                </Button>
+                <Button variant="ghost" size="icon" onClick={handlePaste}>
+                  <ClipboardPaste className="h-4 w-4" />
+                  <span className="sr-only">Paste</span>
+                </Button>
+              </div>
+            </div>
             <Textarea
               ref={textareaRef}
               value={diagram.content}
@@ -117,7 +84,11 @@ export default function DiagramEditor({ diagram, onContentChange, config }: Diag
         <Card className="flex-1">
           <CardContent className="p-4 h-full">
             <ScrollArea className="h-full w-full">
-                <DiagramRenderer content={diagram.content} config={config} />
+              <DiagramRenderer
+                id="diagram-to-export"
+                content={diagram.content}
+                config={config}
+              />
             </ScrollArea>
           </CardContent>
         </Card>
