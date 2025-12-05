@@ -32,10 +32,8 @@ SDA: h.SA6.SA5.SA4.SA3.SA2.SA1.SA0.A.D7.D6.h`,
 ];
 
 const defaultDiagramContent = `// Welcome to WebJackTimer!
-// See the symbol reference in the sidebar.
-//
-// Example:
-SIGNAL_NAME: p.n.h.l.x|D|z`;
+// Use the symbol reference in the sidebar.
+`;
 
 export default function Home() {
   const [diagrams, setDiagrams] = React.useState<Diagram[]>(initialDiagrams);

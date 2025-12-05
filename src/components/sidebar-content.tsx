@@ -28,17 +28,19 @@ interface SidebarContentProps {
 }
 
 const symbolReference = [
-    { symbol: '~', description: 'Hi edge' },
-    { symbol: '_', description: 'Lo edge' },
-    { symbol: '/', description: 'Hi edge slow' },
-    { symbol: '\\', description: 'Lo edge slow' },
-    { symbol: '[', description: 'Data begin' },
-    { symbol: ']', description: 'Data end' },
-    { symbol: '*', description: 'Data cross over' },
-    { symbol: '<', description: 'Data begin slow' },
-    { symbol: '>', description: 'Data end slow' },
-    { symbol: ':', description: 'Break' },
+    { symbol: '~', description: 'Hi-Z to High' },
+    { symbol: '_', description: 'Hi-Z to Low' },
+    { symbol: '/', description: 'Low to High' },
+    { symbol: '\\', description: 'High to Low' },
+    { symbol: '=', description: 'Bus separator' },
+    { symbol: 'h', description: 'High' },
+    { symbol: 'l', description: 'Low' },
+    { symbol: 'z', description: 'Hi-Z' },
+    { symbol: 'x', description: 'Undefined' },
+    { symbol: '.', description: 'Keep previous' },
+    { symbol: '*', description: 'Data transition' },
     { symbol: '|', description: 'Marker' },
+    { symbol: '|a', description: 'Named marker' },
 ]
 
 export default function SidebarContent({
