@@ -28,15 +28,6 @@ interface SidebarContentProps {
 }
 
 const symbolReference = [
-    { symbol: 'p', description: 'Positive edge clock' },
-    { symbol: 'n', description: 'Negative edge clock' },
-    { symbol: 'h', description: 'High signal' },
-    { symbol: 'l', description: 'Low signal' },
-    { symbol: '.', description: 'Continue state' },
-    { symbol: 'x', description: 'Unknown state' },
-    { symbol: 'D', description: 'Data block (e.g., D1)' },
-    { symbol: 'z', description: 'High impedance' },
-    { symbol: '-', description: 'Tristate' },
     { symbol: '~', description: 'Hi edge' },
     { symbol: '_', description: 'Lo edge' },
     { symbol: '/', description: 'Hi edge slow' },
