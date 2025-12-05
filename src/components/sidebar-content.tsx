@@ -36,7 +36,18 @@ const symbolReference = [
     { symbol: 'x', description: 'Unknown state' },
     { symbol: 'D', description: 'Data block (e.g., D1)' },
     { symbol: 'z', description: 'High impedance' },
-    { symbol: '|', description: 'Spacer' },
+    { symbol: '-', description: 'Tristate' },
+    { symbol: '~', description: 'Hi edge' },
+    { symbol: '_', description: 'Lo edge' },
+    { symbol: '/', description: 'Hi edge slow' },
+    { symbol: '\\', description: 'Lo edge slow' },
+    { symbol: '[', description: 'Data begin' },
+    { symbol: ']', description: 'Data end' },
+    { symbol: '*', description: 'Data cross over' },
+    { symbol: '<', description: 'Data begin slow' },
+    { symbol: '>', description: 'Data end slow' },
+    { symbol: ':', description: 'Break' },
+    { symbol: '|', description: 'Marker' },
 ]
 
 export default function SidebarContent({
@@ -82,7 +93,7 @@ export default function SidebarContent({
       </SidebarContentArea>
 
       <SidebarFooter className="p-0 border-t">
-        <Accordion type="multiple" className="w-full px-2">
+        <Accordion type="multiple" className="w-full px-2" defaultValue={['symbols']}>
             <AccordionItem value="symbols">
                 <AccordionTrigger>Symbol Reference</AccordionTrigger>
                 <AccordionContent>
