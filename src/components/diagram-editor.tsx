@@ -112,49 +112,6 @@ export default function DiagramEditor({ diagram, onContentChange, config }: Diag
             />
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-primary" /> AI Tools
-              </h3>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleCheckErrors}
-                disabled={isCheckingErrors}
-              >
-                {isCheckingErrors ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Bot className="mr-2 h-4 w-4" />
-                )}
-                Check for Errors
-              </Button>
-            </div>
-            <div className="space-y-2">
-                <h4 className="text-sm font-medium text-muted-foreground">Symbol Suggestions</h4>
-                {isSuggesting ? (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Generating suggestions...</span>
-                    </div>
-                ) : (
-                    <div className="flex flex-wrap gap-2">
-                    {suggestions.length > 0 ? (
-                        suggestions.map((s, i) => (
-                        <Button key={i} variant="outline" size="sm" onClick={() => handleSuggestionClick(s)}>
-                            {s}
-                        </Button>
-                        ))
-                    ) : (
-                        <p className="text-sm text-muted-foreground">Type in the editor to get suggestions.</p>
-                    )}
-                    </div>
-                )}
-            </div>
-          </CardContent>
-        </Card>
       </div>
       <div className="lg:col-span-2 flex flex-col">
         <Card className="flex-1">
