@@ -54,25 +54,41 @@ export default function DiagramRenderer({ content, config }: DiagramRendererProp
       const x = NAME_WIDTH + i * SYMBOL_WIDTH;
 
       const drawLine = (y: number) => `L ${x + SYMBOL_WIDTH} ${y}`;
-      const drawUp = (y: number) => `L ${x} ${y} L ${x + SYMBOL_WIDTH / 2} ${y - (config.signalHeight * 0.3)} L ${x + SYMBOL_WIDTH} ${y}`;
-      const drawDown = (y: number) => `L ${x} ${y} L ${x + SYMBOL_WIDTH / 2} ${y + (config.signalHeight * 0.3)} L ${x + SYMBOL_WIDTH} ${y}`;
-
+      
       switch (char) {
-        case 'h':
+        case '~': // Hi edge
           path += lastState === 'l' ? `L ${x} ${lowY} L ${x} ${highY} ` : `M ${x} ${highY} `;
           path += drawLine(highY);
           lastState = 'h';
           break;
-        case 'l':
+        case '_': // Lo edge
           path += lastState === 'h' ? `L ${x} ${highY} L ${x} ${lowY} ` : `M ${x} ${lowY} `;
           path += drawLine(lowY);
           lastState = 'l';
           break;
-        case 'p':
+        case '/': // Hi edge slow
+          path += `M ${x} ${lowY} L ${x + SYMBOL_WIDTH} ${highY} `;
+          lastState = 'h';
+          break;
+        case '\\': // Lo edge slow
+          path += `M ${x} ${highY} L ${x + SYMBOL_WIDTH} ${lowY} `;
+          lastState = 'l';
+          break;
+        case 'h': // Kept for compatibility
+          path += lastState === 'l' ? `L ${x} ${lowY} L ${x} ${highY} ` : `M ${x} ${highY} `;
+          path += drawLine(highY);
+          lastState = 'h';
+          break;
+        case 'l': // Kept for compatibility
+          path += lastState === 'h' ? `L ${x} ${highY} L ${x} ${lowY} ` : `M ${x} ${lowY} `;
+          path += drawLine(lowY);
+          lastState = 'l';
+          break;
+        case 'p': // Kept for compatibility
           path += `M ${x} ${lowY} L ${x + SYMBOL_WIDTH / 2} ${lowY} L ${x + SYMBOL_WIDTH / 2} ${highY} L ${x + SYMBOL_WIDTH} ${highY}`;
           lastState = 'h';
           break;
-        case 'n':
+        case 'n': // Kept for compatibility
           path += `M ${x} ${highY} L ${x + SYMBOL_WIDTH / 2} ${highY} L ${x + SYMBOL_WIDTH / 2} ${lowY} L ${x + SYMBOL_WIDTH} ${lowY}`;
           lastState = 'l';
           break;
@@ -94,9 +110,30 @@ export default function DiagramRenderer({ content, config }: DiagramRendererProp
             lastState = 'x';
             break;
         case '|':
+        case ':': // Break & Marker
              elements.push(
                  <line key={`|-`+i} x1={x + SYMBOL_WIDTH/2} y1={yOffset} x2={x+SYMBOL_WIDTH/2} y2={yOffset+config.signalHeight} stroke="hsl(var(--border))" strokeDasharray="2 2" />
              );
+            break;
+        case '[': // Data begin
+        case '<': // Data begin slow
+            elements.push(
+                <path key={`begin-`+i} d={`M ${x+SYMBOL_WIDTH} ${highY} L ${x+SYMBOL_WIDTH/2} ${highY} L ${x} ${midY} L ${x+SYMBOL_WIDTH/2} ${lowY} L ${x+SYMBOL_WIDTH} ${lowY}`} stroke="hsl(var(--primary))" strokeWidth="2" fill="none" />
+            );
+            lastState = 'x';
+            break;
+        case ']': // Data end
+        case '>': // Data end slow
+            elements.push(
+                <path key={`end-`+i} d={`M ${x} ${highY} L ${x+SYMBOL_WIDTH/2} ${highY} L ${x+SYMBOL_WIDTH} ${midY} L ${x+SYMBOL_WIDTH/2} ${lowY} L ${x} ${lowY}`} stroke="hsl(var(--primary))" strokeWidth="2" fill="none" />
+            );
+            lastState = 'x';
+            break;
+        case '*': // Data cross over
+             elements.push(
+                <path key={`cross-`+i} d={`M ${x} ${highY} L ${x+SYMBOL_WIDTH} ${lowY} M ${x} ${lowY} L ${x+SYMBOL_WIDTH} ${highY}`} stroke="hsl(var(--primary))" strokeWidth="2" fill="none" />
+            );
+            lastState = 'x';
             break;
         default: // Data
             elements.push(
