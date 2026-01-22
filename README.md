@@ -1,5 +1,7 @@
 # Simple Timing Diagram
 
+**[Live Demo](https://liaochihung.github.io/SimpleTimingDiagram/)**
+
 A modern, web-based timing diagram generator that converts simple text syntax into clean, professional SVG/PNG diagrams. Powered by Next.js.
 
 ![Sample Screenshot](docs/sample.jpeg)

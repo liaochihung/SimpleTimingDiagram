@@ -1,6 +1,8 @@
-import type {NextConfig} from 'next';
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  output: 'export',
+  basePath: '/SimpleTimingDiagram',
   /* config options here */
   typescript: {
     ignoreBuildErrors: true,
@@ -29,6 +31,7 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+    unoptimized: true,
   },
 };
 
