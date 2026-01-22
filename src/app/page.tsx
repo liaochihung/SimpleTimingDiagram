@@ -34,7 +34,7 @@ SDA:    ~~___/SADR6/SADR5/SADR4/SADR3/SADR2/SADR1/SADR0/ACK__/DATA7/DATA6/____~~
   },
 ];
 
-const defaultDiagramContent = `// Welcome to WebJackTimer!
+const defaultDiagramContent = `// Welcome to Simple Timing Diagram!
 // Markers go on the first line: Marker= |a |b
 // Then add your signals line-by-line.
 `;
@@ -73,12 +73,12 @@ export default function Home() {
     const newDiagram = { ...activeDiagram, name, isSaved: true };
     const existingIndex = diagrams.findIndex((d) => d.id === newDiagram.id);
 
-    if (existingIndex !== -1) {
+    if (existingIndex === -1) {
+      setDiagrams([...diagrams, newDiagram]);
+    } else {
       const updatedDiagrams = [...diagrams];
       updatedDiagrams[existingIndex] = newDiagram;
       setDiagrams(updatedDiagrams);
-    } else {
-      setDiagrams([...diagrams, newDiagram]);
     }
     setActiveDiagram(newDiagram);
     toast({ title: "Diagram Saved", description: `"${name}" has been saved.` });
@@ -110,7 +110,7 @@ export default function Home() {
       downloadLink.download = `${activeDiagram.name}.svg`;
       document.body.appendChild(downloadLink);
       downloadLink.click();
-      document.body.removeChild(downloadLink);
+      downloadLink.remove();
       URL.revokeObjectURL(url);
       toast({ title: "SVG Exported" });
     } else {
@@ -127,7 +127,7 @@ export default function Home() {
         downloadLink.download = `${activeDiagram.name}.png`;
         document.body.appendChild(downloadLink);
         downloadLink.click();
-        document.body.removeChild(downloadLink);
+        downloadLink.remove();
         URL.revokeObjectURL(pngUrl);
         toast({ title: "PNG Exported" });
       };
