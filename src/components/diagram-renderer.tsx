@@ -1,7 +1,7 @@
 "use client";
 
 import { DiagramConfig, Signal } from "@/lib/types";
-import { useMemo } from "react";
+import { ReactElement, useMemo } from "react";
 
 interface DiagramRendererProps {
   id?: string;
@@ -25,7 +25,7 @@ const parseContent = (content: string): { signals: Signal[], markers: Marker[] }
     .split("\n")
     .map((line) => line.trimEnd()) // Keep leading spaces for marker alignment
     .filter((line) => line && !line.startsWith("//"));
-  
+
   const signals: Signal[] = [];
   let markers: Marker[] = [];
 
@@ -35,7 +35,7 @@ const parseContent = (content: string): { signals: Signal[], markers: Marker[] }
     let nameRegex = /\|(\w*)/g;
     let match;
     while ((match = nameRegex.exec(markerContent)) !== null) {
-        markers.push({ position: match.index, name: match[1] });
+      markers.push({ position: match.index, name: match[1] });
     }
   }
 
@@ -53,7 +53,7 @@ const parseContent = (content: string): { signals: Signal[], markers: Marker[] }
 
 export default function DiagramRenderer({ id, content, config }: DiagramRendererProps) {
   const { signals, markers } = useMemo(() => parseContent(content), [content]);
-  
+
   if (signals.length === 0) {
     return (
       <div className="flex items-center justify-center h-full text-muted-foreground">
@@ -73,14 +73,14 @@ export default function DiagramRenderer({ id, content, config }: DiagramRenderer
     const lowY = yOffset + config.signalHeight * 0.8;
     const midY = yOffset + config.signalHeight * 0.5;
 
-    const elements: JSX.Element[] = [];
+    const elements: ReactElement[] = [];
 
     for (let i = 0; i < wave.length; i++) {
       const char = wave[i];
       const x = NAME_WIDTH + i * SYMBOL_WIDTH;
 
       const drawLine = (y: number) => `L ${x + SYMBOL_WIDTH} ${y}`;
-      
+
       switch (char) {
         case '~':
           path += lastState !== 'h' ? `M ${x} ${lowY} L ${x} ${highY} ` : `M ${x} ${highY} `;
@@ -119,67 +119,67 @@ export default function DiagramRenderer({ id, content, config }: DiagramRenderer
           lastState = 'l';
           break;
         case 'x':
-           elements.push(
-            <path key={`x-${i}`} d={`M ${x} ${highY} L ${x+SYMBOL_WIDTH} ${highY} M ${x} ${lowY} L ${x+SYMBOL_WIDTH} ${lowY}`} stroke="hsl(var(--foreground))" strokeWidth="1" strokeDasharray="4 2" />
+          elements.push(
+            <path key={`x-${i}`} d={`M ${x} ${highY} L ${x + SYMBOL_WIDTH} ${highY} M ${x} ${lowY} L ${x + SYMBOL_WIDTH} ${lowY}`} stroke="hsl(var(--foreground))" strokeWidth="1" strokeDasharray="4 2" />
           );
           lastState = 'x';
           break;
         case '.':
-           if (lastState === 'h') path += drawLine(highY);
-           if (lastState === 'l') path += drawLine(lowY);
-           if (lastState === 'x')  elements.push(
-            <path key={`x-.${i}`} d={`M ${x} ${highY} L ${x+SYMBOL_WIDTH} ${highY} M ${x} ${lowY} L ${x+SYMBOL_WIDTH} ${lowY}`} stroke="hsl(var(--foreground))" strokeWidth="1" strokeDasharray="4 2" />
+          if (lastState === 'h') path += drawLine(highY);
+          if (lastState === 'l') path += drawLine(lowY);
+          if (lastState === 'x') elements.push(
+            <path key={`x-.${i}`} d={`M ${x} ${highY} L ${x + SYMBOL_WIDTH} ${highY} M ${x} ${lowY} L ${x + SYMBOL_WIDTH} ${lowY}`} stroke="hsl(var(--foreground))" strokeWidth="1" strokeDasharray="4 2" />
           );
           break;
         case '-':
-            path += `M ${x + SYMBOL_WIDTH * 0.1} ${midY} ` + drawLine(midY);
-            lastState = 'x';
-            break;
+          path += `M ${x + SYMBOL_WIDTH * 0.1} ${midY} ` + drawLine(midY);
+          lastState = 'x';
+          break;
         case ':': // Break
-             elements.push(
-                 <path key={`break-${i}`} d={`M ${x + SYMBOL_WIDTH*0.3} ${highY - 5} L ${x + SYMBOL_WIDTH*0.7} ${lowY + 5} M ${x + SYMBOL_WIDTH*0.7} ${highY - 5} L ${x + SYMBOL_WIDTH*0.3} ${lowY + 5}`} stroke="hsl(var(--primary))" strokeWidth="2" fill="none" />
-             );
-            lastState = 'x';
-            break;
+          elements.push(
+            <path key={`break-${i}`} d={`M ${x + SYMBOL_WIDTH * 0.3} ${highY - 5} L ${x + SYMBOL_WIDTH * 0.7} ${lowY + 5} M ${x + SYMBOL_WIDTH * 0.7} ${highY - 5} L ${x + SYMBOL_WIDTH * 0.3} ${lowY + 5}`} stroke="hsl(var(--primary))" strokeWidth="2" fill="none" />
+          );
+          lastState = 'x';
+          break;
         case '*': // Data cross over
-             elements.push(
-                <path key={`crossover-${i}`} d={`M ${x} ${highY} L ${x+SYMBOL_WIDTH} ${lowY} M ${x} ${lowY} L ${x+SYMBOL_WIDTH} ${highY}`} stroke="hsl(var(--primary))" strokeWidth="2" fill="none" />
-             );
-            lastState = 'x';
-            break;
+          elements.push(
+            <path key={`crossover-${i}`} d={`M ${x} ${highY} L ${x + SYMBOL_WIDTH} ${lowY} M ${x} ${lowY} L ${x + SYMBOL_WIDTH} ${highY}`} stroke="hsl(var(--primary))" strokeWidth="2" fill="none" />
+          );
+          lastState = 'x';
+          break;
         case '[':
-            elements.push(
-                <path key={`d-begin-${i}`} d={`M ${x} ${highY} L ${x + SYMBOL_WIDTH / 2} ${highY} L ${x + SYMBOL_WIDTH} ${midY} L ${x + SYMBOL_WIDTH / 2} ${lowY} L ${x} ${lowY} Z`} stroke="hsl(var(--primary))" strokeWidth="2" fill="hsl(var(--background))" />
-            );
-            path += `M ${x} ${lowY} L ${x+SYMBOL_WIDTH} ${lowY} M ${x} ${highY} L ${x+SYMBOL_WIDTH} ${highY}`;
-            lastState = 'x';
-            break;
+          elements.push(
+            <path key={`d-begin-${i}`} d={`M ${x} ${highY} L ${x + SYMBOL_WIDTH / 2} ${highY} L ${x + SYMBOL_WIDTH} ${midY} L ${x + SYMBOL_WIDTH / 2} ${lowY} L ${x} ${lowY} Z`} stroke="hsl(var(--primary))" strokeWidth="2" fill="hsl(var(--background))" />
+          );
+          path += `M ${x} ${lowY} L ${x + SYMBOL_WIDTH} ${lowY} M ${x} ${highY} L ${x + SYMBOL_WIDTH} ${highY}`;
+          lastState = 'x';
+          break;
         case ']':
-            elements.push(
-                <path key={`d-end-${i}`} d={`M ${x + SYMBOL_WIDTH} ${highY} L ${x + SYMBOL_WIDTH / 2} ${highY} L ${x} ${midY} L ${x + SYMBOL_WIDTH/2} ${lowY} L ${x+SYMBOL_WIDTH} ${lowY} Z`} stroke="hsl(var(--primary))" strokeWidth="2" fill="hsl(var(--background))" />
-            );
-            path += `M ${x} ${lowY} L ${x+SYMBOL_WIDTH} ${lowY} M ${x} ${highY} L ${x+SYMBOL_WIDTH} ${highY}`;
-            lastState = 'x';
-            break;
+          elements.push(
+            <path key={`d-end-${i}`} d={`M ${x + SYMBOL_WIDTH} ${highY} L ${x + SYMBOL_WIDTH / 2} ${highY} L ${x} ${midY} L ${x + SYMBOL_WIDTH / 2} ${lowY} L ${x + SYMBOL_WIDTH} ${lowY} Z`} stroke="hsl(var(--primary))" strokeWidth="2" fill="hsl(var(--background))" />
+          );
+          path += `M ${x} ${lowY} L ${x + SYMBOL_WIDTH} ${lowY} M ${x} ${highY} L ${x + SYMBOL_WIDTH} ${highY}`;
+          lastState = 'x';
+          break;
 
         default: // Data or space
-            if (char.trim() === '') { // Treat space as a continuation
-                if (lastState === 'h') path += drawLine(highY);
-                if (lastState === 'l') path += drawLine(lowY);
-                if (lastState === 'x')  elements.push(
-                    <path key={`x-space-${i}`} d={`M ${x} ${highY} L ${x+SYMBOL_WIDTH} ${highY} M ${x} ${lowY} L ${x+SYMBOL_WIDTH} ${lowY}`} stroke="hsl(var(--foreground))" strokeWidth="1" strokeDasharray="4 2" />
-                );
-                break;
-            }
+          if (char.trim() === '') { // Treat space as a continuation
+            if (lastState === 'h') path += drawLine(highY);
+            if (lastState === 'l') path += drawLine(lowY);
+            if (lastState === 'x') elements.push(
+              <path key={`x-space-${i}`} d={`M ${x} ${highY} L ${x + SYMBOL_WIDTH} ${highY} M ${x} ${lowY} L ${x + SYMBOL_WIDTH} ${lowY}`} stroke="hsl(var(--foreground))" strokeWidth="1" strokeDasharray="4 2" />
+            );
+            break;
+          }
 
-            elements.push(
-                <rect key={`d-`+i} x={x} y={yOffset + config.signalHeight * 0.1} width={SYMBOL_WIDTH} height={config.signalHeight * 0.8} fill="hsl(var(--secondary))" rx="2" />
-            );
-            elements.push(
-                 <text key={`t-`+i} x={x+SYMBOL_WIDTH/2} y={midY + 5} textAnchor="middle" fontSize="12" fill="hsl(var(--secondary-foreground))">{char}</text>
-            );
-            path += `M ${x} ${lowY} L ${x+SYMBOL_WIDTH} ${lowY} M ${x} ${highY} L ${x+SYMBOL_WIDTH} ${highY}`;
-            lastState = 'x';
+          elements.push(
+            <rect key={`d-` + i} x={x} y={yOffset + config.signalHeight * 0.1} width={SYMBOL_WIDTH} height={config.signalHeight * 0.8} fill="hsl(var(--secondary))" rx="2" />
+          );
+          elements.push(
+            <text key={`t-` + i} x={x + SYMBOL_WIDTH / 2} y={midY + 5} textAnchor="middle" fontSize="12" fill="hsl(var(--secondary-foreground))">{char}</text>
+          );
+          path += `M ${x} ${lowY} L ${x + SYMBOL_WIDTH} ${lowY} M ${x} ${highY} L ${x + SYMBOL_WIDTH} ${highY}`;
+          lastState = 'x';
       }
     }
     elements.unshift(<path key="wave-path" d={path} stroke="hsl(var(--primary))" strokeWidth="2" fill="none" />);
@@ -191,36 +191,36 @@ export default function DiagramRenderer({ id, content, config }: DiagramRenderer
       xmlns="http://www.w3.org/2000/svg"
     >
       <rect width="100%" height="100%" fill="hsl(var(--background))" />
-      
+
       {/* Markers */}
       <g transform={`translate(${PADDING}, ${PADDING})`}>
         {markers.map((marker, index) => {
-            const markerX = NAME_WIDTH + marker.position * SYMBOL_WIDTH + SYMBOL_WIDTH / 2;
-            return (
-                <g key={`marker-group-${index}`}>
-                    <line 
-                        key={`marker-line-${index}`} 
-                        x1={markerX} 
-                        y1={0} 
-                        x2={markerX} 
-                        y2={totalHeight} 
-                        stroke="hsl(var(--border))" 
-                        strokeDasharray="4 4" />
-                    <text 
-                        key={`marker-text-${index}`} 
-                        x={markerX} 
-                        y={MARKER_HEIGHT - 2} 
-                        textAnchor="middle" 
-                        fontSize="12" 
-                        fill="hsl(var(--muted-foreground))"
-                    >
-                        {marker.name}
-                    </text>
-                </g>
-            )
+          const markerX = NAME_WIDTH + marker.position * SYMBOL_WIDTH + SYMBOL_WIDTH / 2;
+          return (
+            <g key={`marker-group-${index}`}>
+              <line
+                key={`marker-line-${index}`}
+                x1={markerX}
+                y1={0}
+                x2={markerX}
+                y2={totalHeight}
+                stroke="hsl(var(--border))"
+                strokeDasharray="4 4" />
+              <text
+                key={`marker-text-${index}`}
+                x={markerX}
+                y={MARKER_HEIGHT - 2}
+                textAnchor="middle"
+                fontSize="12"
+                fill="hsl(var(--muted-foreground))"
+              >
+                {marker.name}
+              </text>
+            </g>
+          )
         })}
       </g>
-      
+
       {signals.map((signal, index) => {
         const y = index * config.signalHeight + PADDING + MARKER_HEIGHT;
         return (
